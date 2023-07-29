@@ -32,7 +32,7 @@ class ChatForm extends Component
                 'model' => config('app.openai.model'),
                 'messages' => [
                     ['role' => 'user', 'content' => 'Hello!'],
-                    ['role' => 'system', 'content' => 'Format output with Markdown including format code with Markdown triple backticks. Answer as concisely as possible. ' . $this->prompt],
+                    ['role' => 'system', 'content' => 'Format output with Markdown including format code with Markdown triple backticks. ' . $this->prompt],
                 ],
                 'temperature' => (int) config('app.openai.temperature'),
                 'max_tokens' => (int) config('app.openai.max_tokens'),
