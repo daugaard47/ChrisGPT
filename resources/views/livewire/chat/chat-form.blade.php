@@ -1,9 +1,9 @@
 <div>
-    <form wire:submit.prevent="generateText">
+    <form wire:submit="generateText">
 
         <label for="prompt" class="block text-sm font-medium leading-5 text-gray-500">Prompt</label>
         <div class="mt-1 relative rounded-md shadow-sm">
-            <textarea id="prompt" wire:model="prompt" class="text-gray-700 block w-full sm:text-sm sm:leading-5" placeholder="Enter a prompt"></textarea>
+            <textarea id="prompt" wire:model.live="prompt" class="text-gray-700 block w-full sm:text-sm sm:leading-5" placeholder="Enter a prompt"></textarea>
         </div>
         <div class="mt-4">
                             <span class="inline-flex rounded-md shadow-sm">

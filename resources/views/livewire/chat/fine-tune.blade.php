@@ -8,13 +8,13 @@
         </pre>
         @endif
     </div>
-    <form wire:submit.prevent="fineTune">
+    <form wire:submit="fineTune">
         <div class="mb-4">
             <label class="block text-gray-700 font-medium mb-2" for="prompt">
                 Prompt:
             </label>
             <textarea
-                wire:model="prompt"
+                wire:model.live="prompt"
                 class="form-input py-2 px-3 rounded-md text-gray-700 leading-5 focus:outline-none focus:shadow-outline-blue focus:border-blue-300"
                 id="prompt"
             ></textarea>
@@ -27,7 +27,7 @@
                 Max Tokens:
             </label>
             <input
-                wire:model="maxTokens"
+                wire:model.live="maxTokens"
                 class="form-input py-2 px-3 rounded-md text-gray-700 leading-5 focus:outline-none focus:shadow-outline-blue focus:border-blue-300"
                 id="maxTokens"
                 type="number"
@@ -41,7 +41,7 @@
                 File:
             </label>
             <input
-                wire:model="file"
+                wire:model.live="file"
                 class="form-input py-2 px-3 rounded-md text-gray-700 leading-5 focus:outline-none focus:shadow-outline-blue focus:border-blue-300"
                 id="file"
                 type="file"
