@@ -14,16 +14,4 @@
             </div>
         </div>
     </div>
-{{--    @push('highlight-css')--}}
-{{--        <link rel="stylesheet"--}}
-{{--              href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">--}}
-{{--    @endpush--}}
-{{--    @push('highlight-js')--}}
-{{--        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>--}}
-{{--        <script>--}}
-{{--            window.addEventListener('DOMContentLoaded', (event) => {--}}
-{{--                hljs.highlightAll();--}}
-{{--            });--}}
-{{--        </script>--}}
-{{--    @endpush--}}
 </x-app-layout>

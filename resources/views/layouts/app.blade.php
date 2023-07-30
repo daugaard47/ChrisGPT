@@ -13,6 +13,11 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('highlight-css')
+    <style>
+        [x-cloak] {
+            display: none;
+        }
+    </style>
 </head>
 <body class="font-sans antialiased">
 <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
