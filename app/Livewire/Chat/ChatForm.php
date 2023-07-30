@@ -3,24 +3,27 @@
 namespace App\Livewire\Chat;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Environment\Environment;
-use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
-use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
-use League\CommonMark\Extension\CommonMark\Node\Block\IndentedCode;
-use League\CommonMark\MarkdownConverter;
-use League\CommonMark\Renderer\HtmlRenderer;
-use Spatie\CommonMarkHighlighter\FencedCodeRenderer;
-use Spatie\CommonMarkHighlighter\IndentedCodeRenderer;
+use Livewire\Attributes\Rule;
 use Livewire\Component;
 
 class ChatForm extends Component
 {
-    public $prompt;
-    public $generatedText;
+    #[Rule('required|min:3', message: 'Please enter a prompt with at least 3 characters.')]
+    public string $prompt;
+    public mixed $generatedText = '';
+    public array $chatLog = [];
+    public bool $streaming = false;
 
-    public function generateText()
+    public function validatePrompt(): void
+    {
+        $this->validate();
+        // Append the user's question to the chat log.
+        $this->chatLog[] = ['role' => 'user', 'content' => $this->prompt];
+
+        $this->js('$wire.generateText()');
+    }
+
+    public function generateText(): void
     {
         $client = new Client();
         $response = $client->post('https://api.openai.com/v1/chat/completions', [
@@ -31,8 +34,8 @@ class ChatForm extends Component
             'json' => [
                 'model' => config('app.openai.model'),
                 'messages' => [
-                    ['role' => 'user', 'content' => 'Hello!'],
-                    ['role' => 'system', 'content' => 'Format output with Markdown including format code with Markdown triple backticks. ' . $this->prompt],
+                    ['role' => 'user', 'content' => 'You are a laravel assistant, but can answer questions about anything.'],
+                    ['role' => 'system', 'content' => 'Format output with Markdown.' . $this->prompt],
                 ],
                 'temperature' => (int) config('app.openai.temperature'),
                 'max_tokens' => (int) config('app.openai.max_tokens'),
@@ -44,34 +47,29 @@ class ChatForm extends Component
 
         $responseBody = json_decode($response->getBody(), true);
         $textForMarkdown = $responseBody['choices'][0]['message']['content'];
+        // Trim any starting or trailing whitespace on $textForMarkdown.
+        $textForMarkdown = trim($textForMarkdown);
 
-// create a new CommonMark environment
-        $environment = new Environment();
+        $partials = str_split($textForMarkdown, 1); // Just an example to split the text into partials.
 
-// Add the core extension
-        $environment->addExtension(new CommonMarkCoreExtension());
+        foreach ($partials as $partial) {
+            $this->stream('generatedText', $partial);
+            $this->streaming = true;
+            // if streaming create a value boolean to check if the streaming is finished.
+            usleep(10); // Optional delay to simulate streaming effect.
+        }
+        // This will keep it displayed in the view after the streaming has finished.
+        $this->generatedText = $textForMarkdown;
+        if ($this->generatedText)
+        {
+            $this->streaming = false;
+        }
+        $this->prompt = '';
 
-// Register the FencedCodeRenderer class with the 'html', 'php', 'js' languages
-        $environment->addRenderer(FencedCode::class, new FencedCodeRenderer(['html', 'php', 'js']));
-
-// Create a new MarkdownConverter instance
-        $environment->addRenderer(IndentedCode::class, new IndentedCodeRenderer(['html', 'php', 'js']));
-
-        $markdownConverter = new MarkdownConverter($environment);
-
-        $this->generatedText = (string) $markdownConverter->convert($textForMarkdown);
-
-//        // remove the first and last " from the string.
-//        $textForMarkdown = substr($textForMarkdown, 1, -1);
-//        // if there is a ``` add a new linebreak before and after it.
-//        $textForMarkdown = str_replace('```', "\n```\n", $textForMarkdown);
-//        // In $textForMarkdown search for ``` if there are multiple ``` make all the odd ``` into <pre><code> and all the even ``` into </code></pre>.
-//        $textForMarkdown = preg_replace_callback('/```/', function ($matches) {
-//            static $i = 0;
-//
-//            return $i++ % 2 ? '</code></pre>' : '<pre><code>';
-//        }, $textForMarkdown);
+        // Append the AI's answer to the chat log.
+        $this->chatLog[] = ['role' => 'ai', 'content' => $this->generatedText];
     }
+
     public function render()
     {
         return view('livewire.chat.chat-form');
